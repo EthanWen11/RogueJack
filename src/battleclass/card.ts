@@ -4,21 +4,39 @@ type Suit = "spade" | "club" | "heart" | "diamond";
 type Value = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "K" | "Q" | "J";
 
 export class Card {
-  value: Value;
-  suit: Suit;
-  modifiers: Modifier[];
+  private static nextId = 0; // Global counter for unique IDs
+  public readonly id: number; // Unique ID
+
+  private value: Value;
+  private suit: Suit;
+  private modifiers: Modifier[];
 
   constructor(value: Value, suit: Suit) {
+    this.id = Card.nextId++;
     this.value = value;
     this.suit = suit;
     this.modifiers = [];
   }
 
-  addModifier(modifier: Modifier): void {
-    this.modifiers.push(modifier);
+  public getId(): number {
+    return this.id;
   }
 
-  applyModifiers(): void {
+  public getValue(): Value {
+    return this.value;
+  }
+
+  public getSuit(): Suit {
+    return this.suit;
+  }
+
+  public addModifier(modifier: Modifier): void {
+    if (!this.modifiers.some((mod) => mod.name === modifier.name)) {
+      this.modifiers.push(modifier);
+    }
+  }
+
+  public applyModifiers(): void {
     this.modifiers.forEach(modifier => modifier.effect(this));
   }
 }
