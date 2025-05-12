@@ -1,12 +1,16 @@
+// main.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App"; 
+import { BrowserRouter } from "react-router-dom";
+import { GameProvider } from "./context/GameContext"; // Import the GameProvider
+import App from "./App"; // Import your App component
 
-const rootElement = document.getElementById("root") as HTMLElement;
-const root = ReactDOM.createRoot(rootElement);
-
-root.render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <GameProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </GameProvider>
   </React.StrictMode>
 );

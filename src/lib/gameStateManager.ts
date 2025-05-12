@@ -1,12 +1,14 @@
 import { generateFloorMap } from "../utils/roomGenerator";
 import { GameState } from "../types/GameState";
 import { MapNode } from "../utils/mapNode";
+import { getExternalSetGameState } from "../context/GameContext";
 
 export function startNewGame(): GameState {
   const map = generateFloorMap();
   return {
     map: { nodes: map },
     currentNode: 0,
+    floor: 0,
   };
 }
 
@@ -14,44 +16,74 @@ export function advanceNode(prevState: GameState, clickedId: number): GameState 
   if (!prevState.map) return prevState;
 
   const updatedNodes = [...prevState.map.nodes];
-  const currentIndex = updatedNodes.findIndex((n) => n.id === clickedId);
-  const node = updatedNodes[currentIndex];
+  const clickedNode = updatedNodes.find(n => n.id === clickedId);
+  if (!clickedNode) return prevState;
 
-  if (!node) return prevState;
+  // CASE 1: Player clicks the current node to complete it
+  if (clickedNode.status === "current") {
+    clickedNode.status = "current_complete";
 
-  if (node.status === "current") {
-    updatedNodes[currentIndex].status = "current_complete";
-    for (let i = currentIndex + 1; i < updatedNodes.length; i++) {
-      if (updatedNodes[i].status === "not_reachable") {
-        updatedNodes[i].status = "unvisited";
+    // Unlock forward (right) neighbors
+    clickedNode.rightNeighborIds.forEach(neighborId => {
+      const neighbor = updatedNodes.find(n => n.id === neighborId);
+      if (neighbor && neighbor.status === "not_reachable") {
+        neighbor.status = "unvisited";
       }
-    }
-  } else if (node.status === "unvisited") {
-    const prevCompleteIndex = updatedNodes.findIndex((n) => n.status === "current_complete");
-    if (prevCompleteIndex !== -1) {
-      updatedNodes[prevCompleteIndex].status = "passed";
-    }
-    updatedNodes[currentIndex].status = "current";
-    for (let i = 0; i < updatedNodes.length; i++) {
-      if (updatedNodes[i].status === "unvisited" && i !== currentIndex) {
-        updatedNodes[i].status = "not_reachable";
-      }
-    }
-  }
+    });
 
-  const isLast = currentIndex === updatedNodes.length - 1;
-
-  if (isLast) {
-    const newMap = generateFloorMap();
     return {
-      map: { nodes: newMap },
-      currentNode: 0,
+      ...prevState,
+      map: { nodes: updatedNodes },
     };
   }
 
-  return {
-    ...prevState,
-    map: { nodes: updatedNodes },
-    currentNode: currentIndex,
-  };
+  // CASE 2: Player clicks on an unvisited neighbor to move forward
+  if (clickedNode.status === "unvisited") {
+    // Find the node that was just completed
+    const prevCompleteNode = updatedNodes.find(n => n.status === "current_complete");
+    if (prevCompleteNode) {
+      prevCompleteNode.status = "passed";
+
+      // Lock all other unvisited right neighbors
+      prevCompleteNode.rightNeighborIds.forEach(neighborId => {
+        const neighbor = updatedNodes.find(n => n.id === neighborId);
+        if (neighbor && neighbor.status === "unvisited" && neighbor.id !== clickedId) {
+          neighbor.status = "not_reachable";
+        }
+      });
+    }
+
+    clickedNode.status = "current";
+
+    const isLast = clickedNode.rightNeighborIds.length === 0;
+
+    if (isLast) {
+      const newMap = generateFloorMap(); // Presumably regenerates and populates neighborIds
+      return {
+        map: { nodes: newMap },
+        currentNode: 0,
+        floor: prevState.floor + 1,
+      };
+    }
+
+    return {
+      ...prevState,
+      map: { nodes: updatedNodes },
+      currentNode: clickedId,
+    };
+  }
+
+  // All other cases — do nothing
+  return prevState;
 }
+
+/**
+ * Globally sets the game state from anywhere, including non-component files.
+ * @param newState A full GameState object or a function to update it from the current one
+ */
+export const setGameState = (
+  newState: GameState | ((prev: GameState) => GameState)
+): void => {
+  const setter = getExternalSetGameState();
+  setter(newState);
+};

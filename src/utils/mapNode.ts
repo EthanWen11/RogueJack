@@ -13,4 +13,6 @@ export interface MapNode {
   status: NodeStatus;
   x: number;
   y: number;
+  leftNeighborIds: number[];
+  rightNeighborIds: number[];
 }

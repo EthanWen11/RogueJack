@@ -32,6 +32,9 @@ export default function PauseMenu({
         <button onClick={onClose} className="btn btn-close top-right">
           Close
         </button>
+        <button onClick={() => {/* save logic */}} className="btn btn-confirm mt-4">
+          Save Game
+        </button>
         <button onClick={handleReturnToMainMenu} className="btn btn-main-menu center-screen">
           Return to Main Menu
         </button>

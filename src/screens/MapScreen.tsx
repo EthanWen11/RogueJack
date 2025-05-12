@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { GameContext } from "../context/GameContext";
 import PauseMenu from "../components/PauseMenu";
 import DeckViewer from "../components/DeckViewer";
@@ -11,16 +11,23 @@ interface MapScreenProps {
   onDeck: () => void;
 }
 
-const MapScreen: React.FC<MapScreenProps> = () => {
+const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onPause, onDeck }) => {
   const { gameState, setGameState } = useContext(GameContext);
   console.log("MapScreen state:", gameState);
+
   const [pauseOpen, setPauseOpen] = useState(false);
   const [deckOpen, setDeckOpen] = useState(false);
-  const localMapData = gameState.map?.nodes ?? [];
+
+  const localMapData = gameState.map?.nodes ?? []; // Handle case where map might be null
 
   const handleNodeClick = (node: MapNode) => {
     const updatedState = advanceNode(gameState, node.id);
     setGameState(updatedState);
+
+    const updatedNode = updatedState.map?.nodes.find(n => n.id === node.id);
+    if (updatedNode?.status === "current" && updatedNode.type === "battle") {
+      onEnterBattle();
+    }
   };
 
   const getNodeImage = (type: string) => {
@@ -50,46 +57,54 @@ const MapScreen: React.FC<MapScreenProps> = () => {
     }
   };
 
+  if (!gameState.map || localMapData.length === 0) {
+    return <div>Loading map...</div>;
+  }
+
   return (
     <div className="relative min-h-screen bg-gray-100 overflow-hidden">
-      <button
-        className="absolute top-4 right-4 bg-blue-500 text-white p-2 rounded"
-        onClick={() => setPauseOpen(true)}
-      >
-        Pause
-      </button>
+      {/* Top Right Menu*/} 
+      <div className="absolute top-4 right-4 flex space-x-4 items-center bg-white/80 px-4 py-2 rounded shadow z-10">
+        <span className="text-lg font-semibold">Floor: {gameState.floor}</span>
+        <button onClick={() => onDeck()} className="bg-green-500 text-white px-2 py-1 rounded">Deck</button>
+        <button onClick={() => onPause()} className="bg-blue-500 text-white px-2 py-1 rounded">Pause</button>
+      </div>
 
-      <button
-        className="absolute top-4 left-4 bg-green-500 text-white p-2 rounded"
-        onClick={() => setDeckOpen(!deckOpen)}
-      >
-        Deck
-      </button>
-
+      {/* Map Layout */} 
       <div className="flex justify-center items-center flex-wrap gap-4 mt-20">
-        {localMapData?.map((node) => (
-          <button
-            key={node.id}
-            className="relative w-20 h-20 rounded-full flex items-center justify-center border"
-            onClick={() => handleNodeClick(node)}
-            disabled={
-              !(
+        {localMapData.map((node, index) => (
+          <React.Fragment key={node.id}>
+            {/* Node Button */}
+            <button
+              className="relative w-20 h-20 rounded-full flex items-center justify-center border"
+              onClick={() => handleNodeClick(node)}
+              disabled={!(
                 node.status === "current" ||
                 (node.status === "unvisited" &&
-                  localMapData.some((n) => n.status === "current_complete"))
-              )
-            }
-            style={{
-              backgroundImage: `url(${getNodeImage(node.type)})`,
-              backgroundSize: "cover",
-              borderImage: `url(${getBorderImage(node.status)}) 30 round`,
-              borderWidth: "4px",
-              borderStyle: "solid",
-            }}
-          >
-            {/* Optional label */}
-            <span className="text-white font-bold drop-shadow-sm">{node.id}</span>
-          </button>
+                localMapData.some((n) =>
+                n.status === "current_complete" &&
+                n.rightNeighborIds?.includes(node.id)))
+              )}
+              style={{
+                backgroundImage: `url(${getNodeImage(node.type)})`,
+                backgroundSize: "cover",
+                borderImage: `url(${getBorderImage(node.status)}) 30 round`,
+                borderWidth: "4px",
+                borderStyle: "solid",
+              }}
+            >
+              <span className="text-white font-bold drop-shadow-sm">{node.id}</span>
+            </button>
+
+            {/* Arrow between nodes */}
+            {index < localMapData.length - 1 && (
+              <img
+                src="/images/arrow_right.png"
+                alt="Right Arrow"
+                className="w-20 h-20"
+              />
+            )}
+          </React.Fragment>
         ))}
       </div>
 
