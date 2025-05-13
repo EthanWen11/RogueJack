@@ -1,4 +1,3 @@
-// MainMenu.tsx
 export default function MainMenu({
   onNewGame,
   onLoadGame,

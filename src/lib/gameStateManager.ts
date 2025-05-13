@@ -3,6 +3,12 @@ import { GameState } from "../types/GameState";
 import { MapNode } from "../utils/mapNode";
 import { getExternalSetGameState } from "../context/GameContext";
 
+let externalGameState: GameState = {
+  map: null,
+  currentNode: 0,
+  floor: 0,
+};
+
 export function startNewGame(): GameState {
   const map = generateFloorMap();
   return {
@@ -85,5 +91,13 @@ export const setGameState = (
   newState: GameState | ((prev: GameState) => GameState)
 ): void => {
   const setter = getExternalSetGameState();
-  setter(newState);
+  setter(prev => {
+    const resolvedState = typeof newState === "function" ? (newState as (prev: GameState) => GameState)(prev) : newState;
+    externalGameState = resolvedState;
+    return resolvedState;
+  });
 };
+
+export const getGameState = (): GameState => {
+  return externalGameState;
+}

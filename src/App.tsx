@@ -31,8 +31,12 @@ export default function App() {
     navigate("/map"); // Navigates to the MapScreen after loading a game
   };
 
-  const handleEnterBattle = () => {
-    console.log("Entering battle...");
+  const handleEnterBattle = (isBoss: boolean = false) => {
+    if (isBoss) {
+      console.log("Entering boss battle...");
+    } else {
+      console.log("Entering battle...");
+    }
     navigate("/battle");
   };
 
@@ -42,13 +46,6 @@ export default function App() {
 
   const handleDeck = () => {
     setDeckOpen((prev) => !prev);
-  };
-
-  // Handle game over actions
-  const handleRestart = () => {
-    console.log("Restarting game...");
-    const newGameState = startNewGame();
-    navigate("/map"); // Navigates to the MapScreen after restarting
   };
 
   const handleReturnToMainMenu = () => {
@@ -98,7 +95,7 @@ export default function App() {
         />
         <Route
           path="/gameover"
-          element={<GameOverScreen onRestart={handleRestart} onMainMenu={handleReturnToMainMenu} />}
+          element={<GameOverScreen onRestart={handleNewGame} onMainMenu={handleReturnToMainMenu} />}
         />
       </Routes>
 

@@ -1,7 +1,7 @@
 import { Modifier } from "./modifier"
 
 type Suit = "spade" | "club" | "heart" | "diamond";
-type Value = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "K" | "Q" | "J";
+type Value = "A" | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "K" | "Q" | "J";
 
 export class Card {
   private static nextId = 0; // Global counter for unique IDs

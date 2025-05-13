@@ -6,7 +6,7 @@ import { MapNode } from "../utils/mapNode";
 import { advanceNode } from "../lib/gameStateManager";
 
 interface MapScreenProps {
-  onEnterBattle: () => void;
+  onEnterBattle: (isBoss?: boolean) => void; // default false
   onPause: () => void;
   onDeck: () => void;
 }
@@ -17,18 +17,32 @@ const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onPause, onDeck })
 
   const [pauseOpen, setPauseOpen] = useState(false);
   const [deckOpen, setDeckOpen] = useState(false);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
 
   const localMapData = gameState.map?.nodes ?? []; // Handle case where map might be null
 
   const handleNodeClick = (node: MapNode) => {
-    const updatedState = advanceNode(gameState, node.id);
+  // If it's the current node and it's a battle, go to battle first
+  if (node.status === "current" && (node.type === "battle" || node.type === "boss")) {
+    onEnterBattle(node.type === "boss"); // true if boss, false if battle
+    const updatedState = advanceNode(gameState, node.id); // after the battle, advance the gameState
     setGameState(updatedState);
+    setSelectedNodeId(null); // reset selected node
+    return;
+  }
 
-    const updatedNode = updatedState.map?.nodes.find(n => n.id === node.id);
-    if (updatedNode?.status === "current" && updatedNode.type === "battle") {
-      onEnterBattle();
-    }
+  // If it's selectable but not current yet, highlight it
+  if (selectedNodeId !== node.id) {
+    setSelectedNodeId(node.id);
+    return;
+  }
+
+  // Confirmed second click: move to node, mark it as current
+  const updatedState = advanceNode(gameState, node.id);
+  setGameState(updatedState);
+  setSelectedNodeId(null);
   };
+
 
   const getNodeImage = (type: string) => {
     switch (type) {
@@ -91,6 +105,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onPause, onDeck })
                 borderImage: `url(${getBorderImage(node.status)}) 30 round`,
                 borderWidth: "4px",
                 borderStyle: "solid",
+                borderColor: selectedNodeId === node.id ? "yellow" : undefined,
               }}
             >
               <span className="text-white font-bold drop-shadow-sm">{node.id}</span>

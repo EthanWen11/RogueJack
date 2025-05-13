@@ -15,7 +15,7 @@ export class BattleGame {
   }
 
   public draw(): Card {
-    const drawnCard = this.battleDeck.popTopCard(); // Remove the top card from battleDeck
+    const drawnCard = this.battleDeck.draw(); // Remove the top card from battleDeck
     if (drawnCard) {
       this.discardPile.addCard(drawnCard); // Add it to the discardPile
       this.totalValue += this.getCardValue(drawnCard);

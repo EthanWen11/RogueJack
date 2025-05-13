@@ -1,7 +1,7 @@
 import { Card } from "./card"
 
 type Suit = "spade" | "club" | "heart" | "diamond";
-type Value = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "K" | "Q" | "J";
+type Value = "A" | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "K" | "Q" | "J";
 
 export class Deck {
   private deck: Card[];
@@ -20,7 +20,7 @@ export class Deck {
 
   private createDeck(): Card[] {
     const suits: Suit[] = ["spade", "club", "heart", "diamond"];
-    const values: Value[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "K", "Q", "J"];
+    const values: Value[] = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10, "K", "Q", "J"];
     const deck: Card[] = [];
   
     // iterates over all suits and values to add one of each, default starting deck
@@ -77,7 +77,7 @@ export class Deck {
     return this.deck.length === 0;
   }
 
-  public popTopCard(): Card | undefined {
+  public draw(): Card | undefined {
     if (!this.isEmpty()) {
       return this.deck.pop();
     } 
