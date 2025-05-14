@@ -90,4 +90,10 @@ export class Deck {
       [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
     }
   }
+
+  clone(): Deck {
+    const newDeck = new Deck();
+    newDeck.deck = [...this.deck]; 
+    return newDeck;
+  }
 }

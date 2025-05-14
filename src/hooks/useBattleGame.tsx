@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card } from "../logic/battleclass/card";
 import { Deck } from "../logic/battleclass/deck";
-import { getGameState } from "../lib/gameStateManager";
+import { useGameContext } from "../context/GameContext";
+import { BossEffect, applyBossDebuffs, BossEffectDescriptions } from "../logic/battleclass/bossEffect";
+import { Player } from "../logic/battleclass/player";
+import { player } from "../types/GameState";
 
 const cardBaseValues: Record<string, number> = {
     "A": 8,
@@ -19,14 +22,17 @@ const cardBaseValues: Record<string, number> = {
     "K": 1,
 }
 
-const { floor, currentNode } = getGameState();
-
-const calculateTargetScore = (floor: number, node: number) => {
-  return Math.floor(50 + floor * 50 + node * 10);
-};
-
 export function useBattleGame(totalRounds: number = 5) {
-  const [deck, setDeck] = useState(new Deck());
+  const { gameState } = useGameContext(); 
+  const { floor, nodesCompletedThisFloor } = gameState;
+  const currentNode = gameState.map?.nodes[gameState.currentNode];
+  const isBoss = currentNode?.type === "boss";
+
+  const calculateTargetScore = (floor: number, nodesCompletedThisFloor: number) => {
+    return Math.floor(50 + floor * 50 + (nodesCompletedThisFloor - 1) * 10);
+  };
+
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
   const [hand, setHand] = useState<Card[]>([]);
   const [handValue, setHandValue] = useState(0);
@@ -36,12 +42,51 @@ export function useBattleGame(totalRounds: number = 5) {
   const [roundEnded, setRoundEnded] = useState(false);
   const [battleEnded, setBattleEnded] = useState(false);
   const [didWin, setDidWin] = useState(false);
-  const targetScore = calculateTargetScore(floor, currentNode);
+
+  const [bossEffect, setBossEffect] = useState<BossEffect>(BossEffect.None);
+  const [debuffMessage, setDebuffMessage] = useState<string>("");
+  const [faceCardsNoValue, setFaceCardsNoValue] = useState(false);
+  const [forceAceAsEleven, setForceAceAsEleven] = useState(false);
+  const [disableHit, setHitDisabled] = useState(false);
+  const [disableStay, setStayDisabled] = useState(false);
+  const [disableFirstJoker, setFirstJokerDisabled] = useState(false);
+
+  const targetScore = calculateTargetScore(floor, nodesCompletedThisFloor);
+  
+  useEffect(() => {
+    if (isBoss) {
+      // Select random boss effect (1-10)
+      const randomEffect = Math.floor(Math.random() * 10) + 1;
+      const newBossEffect = randomEffect as BossEffect;
+      setBossEffect(newBossEffect);
+
+      // Apply default debuff flags
+      const debuffResult = applyBossDebuffs(newBossEffect, null, [], 0, 0, 0, player.getJokers());
+      setDebuffMessage(BossEffectDescriptions[newBossEffect]); 
+      
+      if (debuffResult.flags.faceCardsNoValue) {
+        setFaceCardsNoValue(true); 
+      }
+      if (debuffResult.flags.forceAceAsEleven) {
+        setForceAceAsEleven(true); 
+      }
+      if (debuffResult.flags.disableStay) {
+        setStayDisabled(true); 
+      }
+      if (debuffResult.flags.disableFirstJoker) {
+        setFirstJokerDisabled(true); 
+      }
+    }
+    const combatDeck = player.cloneDeck();
+    combatDeck.shuffle(); 
+    setDeck(combatDeck);
+    startNewRound();
+  }, []); 
 
   useEffect(() => {
-    deck.shuffle();
-    startNewRound();
-  }, []);
+  if (roundsLeft === 0 && roundEnded && !battleEnded) {
+    finishBattle();
+  }}, [roundsLeft, roundEnded, battleEnded]);
 
   const getCardValue = (card: Card): number => {
     const val = card.getValue();
@@ -61,6 +106,7 @@ export function useBattleGame(totalRounds: number = 5) {
   };
 
   const drawCard = () => {
+    if (!deck || deck.isEmpty()) return;
     const card = deck.draw();
     if (!card) return;
 
@@ -71,13 +117,22 @@ export function useBattleGame(totalRounds: number = 5) {
     setHand(newHand);
     setHandValue(handValue);
     const baseValue = cardBaseValues[card.getValue()] ?? 0;
-    const score = calcHandScore(baseValue, lastHandValue, handValue, hand.length + 1);
-    setCurrentRoundScore(currentRoundScore + score);
+    let score = calcHandScore(baseValue, lastHandValue, handValue, hand.length + 1);
+
+    if (isBoss) {
+        const debuffResult = applyBossDebuffs(bossEffect, card, newHand, score, lastHandValue, baseValue, player.getJokers());
+        score = debuffResult.modifiedScore;
+    }
+
+    // if ()
+    // const jokerResult = applyJokers();
+
+    setCurrentRoundScore(prev => prev + score);
     setDiscardPile(prev => [...prev, card]);
 
     if (handValue === 21) {
       alert('Blackjack! x10');
-      endRound(currentRoundScore);  // End on perfect 21
+      endRound(currentRoundScore * 10);  // Bonus and end early on perfect 21
     } else if (handValue > 21) {
       endRound(0); // Bust
     }
@@ -101,11 +156,7 @@ export function useBattleGame(totalRounds: number = 5) {
   }
 
   const endRound = (score: number) => {
-    let finalScore = score;
-    if (handValue === 21) {
-        finalScore *= 10;
-    }
-    setTotalScore(prev => prev + finalScore);
+    setTotalScore(prev => prev + score);
     setRoundEnded(true);
     setRoundsLeft(prev => prev - 1);
   };
@@ -139,5 +190,7 @@ export function useBattleGame(totalRounds: number = 5) {
     battleEnded,
     didWin,
     gameOver: roundsLeft === 0 && roundEnded,
+    bossEffect,
+    debuffMessage,
   };
 }

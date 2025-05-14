@@ -1,6 +1,7 @@
 import { Deck } from "./deck"
 import { Player } from "./player"
 import { Card } from "./card"
+import { player } from "../../types/GameState";
 
 export class BattleGame {
   private battleDeck: Deck;
@@ -9,7 +10,7 @@ export class BattleGame {
   private lastCardDrawn: Card | null = null;
 
   constructor() {
-    this.battleDeck = new Deck([...Player.globalDeck.getDeck()]);
+    this.battleDeck = new Deck([...player.globalDeck]);
     this.battleDeck.shuffle();
     this.discardPile = new Deck([]);
   }

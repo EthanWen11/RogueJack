@@ -1,4 +1,3 @@
-// GameContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { GameState } from "../types/GameState";
 
@@ -11,6 +10,7 @@ const initialGameState: GameState = {
   map: null,
   currentNode: 0,
   floor: 0,
+  nodesCompletedThisFloor: 0,
 };
 
 export const GameContext = createContext<GameContextType>({

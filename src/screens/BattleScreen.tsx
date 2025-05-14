@@ -1,4 +1,5 @@
 import { useBattleGame } from "../hooks/useBattleGame";
+import { BossEffect } from "../logic/battleclass/bossEffect";
 
 export default function BattleScreen({
     onWin,
@@ -25,6 +26,8 @@ export default function BattleScreen({
       finishBattle,
       battleEnded,
       didWin,
+      bossEffect,
+      debuffMessage,
     } = useBattleGame(5);
 
     const handleContinue = () => {
@@ -42,6 +45,11 @@ export default function BattleScreen({
       <p className="mb-1 text-lg font-semibold">Target Score: {targetScore}</p>
       <p className="mb-2">Rounds Left: {roundsLeft}</p>
       <p className="mb-2">Total Score: {totalScore}</p>
+
+      {bossEffect !== BossEffect.None && (
+        <p className="mb-2 text-red-600">{debuffMessage}</p>
+      )}
+
       <p className="mb-2">Hand Total: {handValue}</p>
       <p className="mb-2">Current Round Score: {currentRoundScore}</p>
 

@@ -7,6 +7,7 @@ let externalGameState: GameState = {
   map: null,
   currentNode: 0,
   floor: 0,
+  nodesCompletedThisFloor: 0,
 };
 
 export function startNewGame(): GameState {
@@ -15,6 +16,7 @@ export function startNewGame(): GameState {
     map: { nodes: map },
     currentNode: 0,
     floor: 0,
+    nodesCompletedThisFloor: 0,
   };
 }
 
@@ -40,6 +42,7 @@ export function advanceNode(prevState: GameState, clickedId: number): GameState 
     return {
       ...prevState,
       map: { nodes: updatedNodes },
+      nodesCompletedThisFloor: prevState.nodesCompletedThisFloor + 1,
     };
   }
 
@@ -69,6 +72,7 @@ export function advanceNode(prevState: GameState, clickedId: number): GameState 
         map: { nodes: newMap },
         currentNode: 0,
         floor: prevState.floor + 1,
+        nodesCompletedThisFloor: 0,
       };
     }
 
