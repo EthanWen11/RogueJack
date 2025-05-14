@@ -11,6 +11,7 @@ const initialGameState: GameState = {
   currentNode: 0,
   floor: 0,
   nodesCompletedThisFloor: 0,
+  currency: 0,
 };
 
 export const GameContext = createContext<GameContextType>({

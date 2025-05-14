@@ -4,14 +4,16 @@ import PauseMenu from "../components/PauseMenu";
 import DeckViewer from "../components/DeckViewer";
 import { MapNode } from "../utils/mapNode";
 import { advanceNode } from "../lib/gameStateManager";
+import { Player } from "../logic/battleclass/player";
 
 interface MapScreenProps {
   onEnterBattle: (isBoss?: boolean) => void; // default false
+  onEnterShop: () => void;
   onPause: () => void;
   onDeck: () => void;
 }
 
-const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onPause, onDeck }) => {
+const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onEnterShop, onPause, onDeck }) => {
   const { gameState, setGameState } = useContext(GameContext);
   console.log("MapScreen state:", gameState);
 
@@ -25,6 +27,14 @@ const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onPause, onDeck })
   // If it's the current node and it's a battle, go to battle first
   if (node.status === "current" && (node.type === "battle" || node.type === "boss")) {
     onEnterBattle(node.type === "boss"); // true if boss, false if battle
+    const updatedState = advanceNode(gameState, node.id); // after the battle, advance the gameState
+    setGameState(updatedState);
+    setSelectedNodeId(null); // reset selected node
+    return;
+  }
+  // If it's the current node and it's a shop, go to shop
+  else if ((node.status === "current" && (node.type === "shop")) || ((node.status === "unvisited" && (node.type === "shop")))) {
+    onEnterShop(); // true if shop
     const updatedState = advanceNode(gameState, node.id); // after the battle, advance the gameState
     setGameState(updatedState);
     setSelectedNodeId(null); // reset selected node
@@ -133,6 +143,7 @@ const MapScreen: React.FC<MapScreenProps> = ({ onEnterBattle, onPause, onDeck })
       )}
 
       {deckOpen && <DeckViewer onClose={() => setDeckOpen(false)} />}
+
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { getExternalSetGameState } from "../context/GameContext";
 import { useBattleGame } from "../hooks/useBattleGame";
 import { BossEffect } from "../logic/battleclass/bossEffect";
 
@@ -28,6 +29,7 @@ export default function BattleScreen({
       didWin,
       bossEffect,
       debuffMessage,
+      netCurrency
     } = useBattleGame(5);
 
     const handleContinue = () => {
@@ -91,6 +93,9 @@ export default function BattleScreen({
           <h3 className="text-2xl font-bold text-center mb-4">
             {didWin ? "You Won!" : "You Lost!"}
           </h3>
+          {/* <p>
+            {"You got " + {totalScore - targetScore} + " currency!"}
+          </p> */}
           <button
             className="mx-auto block bg-purple-600 text-white p-3 rounded"
             onClick={handleContinue}

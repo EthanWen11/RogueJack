@@ -40,6 +40,11 @@ export default function App() {
     navigate("/battle");
   };
 
+  const handleEnterShop = () => {
+    console.log("Entering shop...")
+    navigate("/shop");
+  }
+
   const handlePause = () => {
     setPauseOpen(true);
   };
@@ -68,6 +73,7 @@ export default function App() {
           element={
             <MapScreen
               onEnterBattle={handleEnterBattle}  // Pass the onEnterBattle prop
+              onEnterShop={handleEnterShop}
               onPause={handlePause}  // Pass the onPause prop
               onDeck={handleDeck}    // Pass the onDeck prop
             />
@@ -88,6 +94,7 @@ export default function App() {
           path="/shop"
           element={
             <ShopScreen
+              onWin={() => navigate("/map")}
               onPause={() => setPauseOpen(true)}
               onDeck={() => setDeckOpen((prev) => !prev)}
             />

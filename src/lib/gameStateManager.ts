@@ -8,6 +8,7 @@ let externalGameState: GameState = {
   currentNode: 0,
   floor: 0,
   nodesCompletedThisFloor: 0,
+  currency: 0
 };
 
 export function startNewGame(): GameState {
@@ -17,7 +18,15 @@ export function startNewGame(): GameState {
     currentNode: 0,
     floor: 0,
     nodesCompletedThisFloor: 0,
+    currency: 0
   };
+}
+
+export function changeCurrency(prevState: GameState, netCurrency: number): GameState { 
+  return {
+    ...prevState,
+    currency: prevState.currency + netCurrency,
+  }
 }
 
 export function advanceNode(prevState: GameState, clickedId: number): GameState {
@@ -73,6 +82,7 @@ export function advanceNode(prevState: GameState, clickedId: number): GameState 
         currentNode: 0,
         floor: prevState.floor + 1,
         nodesCompletedThisFloor: 0,
+        currency: externalGameState.currency
       };
     }
 

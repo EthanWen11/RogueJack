@@ -42,6 +42,7 @@ export function useBattleGame(totalRounds: number = 5) {
   const [roundEnded, setRoundEnded] = useState(false);
   const [battleEnded, setBattleEnded] = useState(false);
   const [didWin, setDidWin] = useState(false);
+  const [netCurrency, setNetCurrency] = useState(0);
 
   const [bossEffect, setBossEffect] = useState<BossEffect>(BossEffect.None);
   const [debuffMessage, setDebuffMessage] = useState<string>("");
@@ -192,5 +193,6 @@ export function useBattleGame(totalRounds: number = 5) {
     gameOver: roundsLeft === 0 && roundEnded,
     bossEffect,
     debuffMessage,
+    netCurrency
   };
 }

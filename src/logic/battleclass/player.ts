@@ -21,4 +21,5 @@ export class Player {
   public cloneDeck(): Deck {
     return this.globalDeck.clone(); // See below
   }
+
 }

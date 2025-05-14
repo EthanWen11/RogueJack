@@ -8,4 +8,5 @@ export interface GameState {
   currentNode: number;
   floor: number;
   nodesCompletedThisFloor: number;
+  currency: number;
 }
