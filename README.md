@@ -13,7 +13,7 @@ Note that the current state of the game is a proof of concept. Due to time restr
    npm install```
 2. Start the development server
    ```npm run dev```
-3. In a browser, navigate to [http://localhost:5173]
+3. In a browser, navigate to [http://localhost:5173](http://localhost:5173)
 
 # Contributors
 Ethan Wen - Game Design, Game Logic, Frontend <br>
