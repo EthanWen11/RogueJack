@@ -16,5 +16,5 @@ Note that the current state of the game is a proof of concept. Due to time restr
 3. In a browser, navigate to [http://localhost:5173]
 
 # Contributors
-Ethan Wen - Game Design, Game Logic, Frontend 
+Ethan Wen - Game Design, Game Logic, Frontend <br>
 Dylan Huang - React Framework, Frontend
