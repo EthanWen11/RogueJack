@@ -7,13 +7,13 @@ Inspired by games like Balatro and Slay the Spire, Roguejack challenges you to i
 Note that the current state of the game is a proof of concept. Due to time restraints the project was suspended in development. 
 
 # Installation and Setup
-1. Clone the repository and install dependencies
-   ```git clone <repository-url> `
-   cd roguejack
-   npm install```
-2. Start the development server
+1. Clone the repository and install dependencies <br>
+```git clone <repository-url>```<br>
+```cd roguejack```<br>
+```npm install```
+3. Start the development server
    ```npm run dev```
-3. In a browser, navigate to [http://localhost:5173](http://localhost:5173)
+4. In a browser, navigate to [http://localhost:5173](http://localhost:5173)
 
 # Contributors
 Ethan Wen - Game Design, Game Logic, Frontend <br>
